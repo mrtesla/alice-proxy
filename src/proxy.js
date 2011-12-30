@@ -109,11 +109,19 @@ Environment.prototype.forward = function(host, port) {
   });
 
   this.u_req.on('response', function(u_res){
+    if (u_res.headers['connection'] === 'close') {
+      if (u_res.headers['content-length'] === undefined) {
+        u_res.headers['transfer-encoding'] = 'chunked';
+      }
+      delete u_res.headers['connection'];
+    }
+
     env.d_res.writeHead(u_res.statusCode, u_res.headers);
 
     if (u_res.statusCode >= 100 && u_res.statusCode < 200) {
       env.d_res.end();
-    } else if (u_res.headers['content-length'] === undefined && u_res.headers['transfer-encoding'] === undefined) {
+    } else if (u_res.headers['content-length'] === undefined &&
+               u_res.headers['transfer-encoding'] === undefined) {
       env.d_res.end();
     } else if (u_res.headers['content-length'] === '0') {
       env.d_res.end();
