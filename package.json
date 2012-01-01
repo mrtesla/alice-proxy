@@ -1,14 +1,10 @@
 {   "name" : "alice-proxy",
-    "version" : "0.0.5",
+    "version" : "0.0.6",
     "description" : "Alice - Http proxy",
     "author": "Simon Menke <simon.menke@gmail.com>",
     "contributors": [],
     "main": "./src/proxy.js",
     "scripts": {},
-    "devDependencies": {
-        "redis":      ">=0.7.1",
-        "hiredis":    ">=0.1.13"
-    },
     "repository": {
     }
 }

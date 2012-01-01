@@ -134,7 +134,7 @@ Environment.prototype.forward = function(host, port) {
   }
 
   this.u_req = Http.request(options);
-  this.u_req.setHeader('Host', this.url.hostname);
+  this.u_req.setHeader('Host', this.url.host);
 
   this.u_req.setTimeout(30000, function(){
     env.respond(503);
