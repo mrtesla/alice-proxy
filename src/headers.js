@@ -14,16 +14,18 @@ var headers = [
   'Host',
   'If-Modified-Since',
   'If-None-Match',
+  'Keep-Alive',
   'Location',
   'Referer',
   'Server',
   'Set-Cookie',
   'Transfer-Encoding',
   'User-Agent',
+  'Vary',
   'X-Forwarded-For',
   'X-Forwarded-Host',
   'X-Forwarded-Port',
-  'X-Forwarded-Proto',
+  'X-Forwarded-Proto'
 ];
 
 exports.headers = {};

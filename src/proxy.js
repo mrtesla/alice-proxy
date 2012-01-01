@@ -117,12 +117,16 @@ Environment.prototype.forward = function(host, port) {
     options.headers['X-Forwarded-For'] = this.d_req.connection.remoteAddress;
   }
 
-  if (!options.headers['X-Forwarded-Proto']) {
+  if (options.headers['X-Forwarded-Proto']) {
+    options.headers['X-Forwarded-Proto'] = options.headers['X-Forwarded-Proto'] + ', ' + 'http';
+  } else {
     options.headers['X-Forwarded-Proto'] = 'http';
   }
 
-  if (!options.headers['X-Forwarded-Host']) {
-    options.headers['X-Forwarded-Host'] = this.url.hostname;
+  if (options.headers['X-Forwarded-Host']) {
+    options.headers['X-Forwarded-Host'] = options.headers['X-Forwarded-Host'] + ', ' + this.url.host;
+  } else {
+    options.headers['X-Forwarded-Host'] = this.url.host;
   }
 
   if (!options.headers['X-Forwarded-Port']) {
