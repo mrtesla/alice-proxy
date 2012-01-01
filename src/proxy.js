@@ -2,6 +2,7 @@ var Http = require('http')
 ,   Url  = require('url')
 ,   FS   = require('fs')
 ,   Buf  = require('./buffer')
+,   Head = require('./headers')
 ,   Router
 ,   Environment
 ;
@@ -101,41 +102,61 @@ Environment.prototype.forward = function(host, port) {
     'headers' : this.headers
   };
 
-  if (options.headers['x-forwarded-for']) {
-    options.headers['x-forwarded-for'] = options.headers['x-forwarded-for'] + ', ' +
+  Object.keys(this.headers).forEach(function(key){
+    var name
+    ;
+
+    name = Head.headers[key] || key;
+    options.headers[name] = env.headers[key];
+  });
+
+  if (options.headers['X-Forwarded-For']) {
+    options.headers['X-Forwarded-For'] = options.headers['X-Forwarded-For'] + ', ' +
       this.d_req.connection.remoteAddress;
   } else {
-    options.headers['x-forwarded-for'] = this.d_req.connection.remoteAddress;
+    options.headers['X-Forwarded-For'] = this.d_req.connection.remoteAddress;
   }
 
-  if (!options.headers['x-forwarded-proto']) {
-    options.headers['x-forwarded-proto'] = 'http';
+  if (!options.headers['X-Forwarded-Proto']) {
+    options.headers['X-Forwarded-Proto'] = 'http';
   }
 
-  if (!options.headers['x-forwarded-host']) {
-    options.headers['x-forwarded-host'] = this.url.hostname;
+  if (!options.headers['X-Forwarded-Host']) {
+    options.headers['X-Forwarded-Host'] = this.url.hostname;
   }
 
-  if (!options.headers['x-forwarded-port']) {
-    options.headers['x-forwarded-port'] = ''+port;
+  if (!options.headers['X-Forwarded-Port']) {
+    options.headers['X-Forwarded-Port'] = ''+this.url.port;
   }
 
   this.u_req = Http.request(options);
-  this.u_req.setHeader('host', this.headers.host);
+  this.u_req.setHeader('Host', this.url.hostname);
 
   this.u_req.setTimeout(30000, function(){
     env.respond(503);
   });
 
   this.u_req.on('response', function(u_res){
-    if (u_res.headers['connection'] === 'close') {
-      if (u_res.headers['content-length'] === undefined) {
-        u_res.headers['transfer-encoding'] = 'chunked';
+    var headers
+    ;
+
+    headers = {};
+    Object.keys(u_res.headers).forEach(function(key){
+      var name
+      ;
+
+      name = Head.headers[key] || key;
+      headers[name] = u_res.headers[key];
+    });
+
+    if (headers['Connection'] === 'close') {
+      if (headers['Content-Length'] === undefined) {
+        headers['Transfer-Encoding'] = 'chunked';
       }
-      delete u_res.headers['connection'];
+      delete headers['Connection'];
     }
 
-    env.d_res.writeHead(u_res.statusCode, u_res.headers);
+    env.d_res.writeHead(u_res.statusCode, headers);
 
     if (u_res.statusCode >= 100 && u_res.statusCode < 200) {
       env.d_res.end();
