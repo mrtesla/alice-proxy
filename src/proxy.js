@@ -159,19 +159,13 @@ Environment.prototype.forward = function(host, port) {
       headers[name] = u_res.headers[key];
     });
 
-    if (headers['Connection'] === 'close') {
-      if (headers['Content-Length'] === undefined) {
-        headers['Transfer-Encoding'] = 'chunked';
-      }
-      delete headers['Connection'];
-    }
-
     env.d_res.writeHead(u_res.statusCode, headers);
 
     if (u_res.statusCode >= 100 && u_res.statusCode < 200) {
       env.d_res.end();
-    } else if (u_res.headers['content-length'] === undefined &&
-               u_res.headers['transfer-encoding'] === undefined) {
+    } else if (u_res.headers['content-length']    === undefined &&
+               u_res.headers['transfer-encoding'] === undefined &&
+               u_res.headers['connection']        !== 'close') {
       env.d_res.end();
     } else if (u_res.headers['content-length'] === '0') {
       env.d_res.end();
