@@ -66,21 +66,27 @@ Environment = function(agent, d_req, d_res){
 
 Environment.prototype.respond = function(status) {
   var file
+  ,   headers
   ;
 
   file = __dirname + "/../errors/"+status+".html";
+
+  headers = {
+    'Content-Type':  'text/html',
+    'Cache-Control': 'max-age=0, private, must-revalidate'
+  };
 
   if (status == 'maintenance') {
     status = 503;
   }
 
   if (this.method == 'HEAD') {
-    this.d_res.writeHead(status);
+    this.d_res.writeHead(status, headers);
     this.d_res.end();
     return;
   }
 
-  this.d_res.writeHead(status, {'Content-Type': 'text/html'});
+  this.d_res.writeHead(status, headers);
   this.stream = FS.createReadStream(file);
   this.stream.pipe(this.d_res);
 };
@@ -91,7 +97,7 @@ Environment.prototype.forward = function(host, port) {
   ,   env = this
   ;
 
-  console.log('FWD['+host+':'+port+']: '+this.method+' '+this.upstream_url);
+  //console.log('FWD['+host+':'+port+']: '+this.method+' '+this.upstream_url);
 
   options = {
     'agent'   : this.agent,
