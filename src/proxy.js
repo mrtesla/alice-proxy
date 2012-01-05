@@ -165,7 +165,7 @@ Environment.prototype.forward = function(host, port) {
       env.d_res.end();
     } else if (u_res.statusCode >= 304) {
       env.d_res.end();
-    } else if (u_req.method === 'HEAD') {
+    } else if (env.u_req.method === 'HEAD') {
       env.d_res.end();
     } else if (u_res.headers['content-length']    === undefined &&
                u_res.headers['transfer-encoding'] === undefined &&
