@@ -23,7 +23,7 @@ Buffer = function(source){
   };
 
   this.on_close = function(){
-    ops.push(['close', []]);
+    ops.push(['abort', []]);
     _this.break = true;
   };
 
