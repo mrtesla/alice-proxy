@@ -14,6 +14,8 @@ exports.create = function(type, callback){
 
 
 Router = function(type, callback){
+  var router = this;
+
   this._callback   = callback;
 
   this.agent  = new Http.Agent
@@ -34,8 +36,6 @@ Router = function(type, callback){
       'pathname' : d_req.url
     });
 
-    //console.log('['+ d_req.method+']: '+url);
-
     if (d_req.url == ('/_alice/probe/'+type)) {
       d_res.writeHead(200);
       d_res.end();
@@ -49,12 +49,14 @@ Router = function(type, callback){
     env.headers = d_req.headers;
     env.method  = d_req.method;
     env.time    = new Date().getTime();
+    env.router_port = router.port;
 
     callback(env);
   });
 };
 
 Router.prototype.listen = function(port){
+  this.port = port;
   this.server.listen(port);
 };
 
@@ -91,13 +93,11 @@ Environment.prototype.respond = function(status) {
   this.stream.pipe(this.d_res);
 };
 
-Environment.prototype.forward = function(host, port) {
+Environment.prototype.forward = function(host, port, res_headers) {
   var options
   ,   u_req
   ,   env = this
   ;
-
-  //console.log('FWD['+host+':'+port+']: '+this.method+' '+this.upstream_url);
 
   options = {
     'agent'   : this.agent,
@@ -117,26 +117,31 @@ Environment.prototype.forward = function(host, port) {
   });
 
   if (options.headers['X-Forwarded-For']) {
-    options.headers['X-Forwarded-For'] = options.headers['X-Forwarded-For'] + ', ' +
-      this.d_req.connection.remoteAddress;
+    options.headers['X-Forwarded-For'] =
+      options.headers['X-Forwarded-For'] + ', ' + this.d_req.connection.remoteAddress;
   } else {
     options.headers['X-Forwarded-For'] = this.d_req.connection.remoteAddress;
   }
 
   if (options.headers['X-Forwarded-Proto']) {
-    options.headers['X-Forwarded-Proto'] = options.headers['X-Forwarded-Proto'] + ', ' + 'http';
+    options.headers['X-Forwarded-Proto'] =
+      options.headers['X-Forwarded-Proto'] + ', http';
   } else {
     options.headers['X-Forwarded-Proto'] = 'http';
   }
 
   if (options.headers['X-Forwarded-Host']) {
-    options.headers['X-Forwarded-Host'] = options.headers['X-Forwarded-Host'] + ', ' + this.url.host;
+    options.headers['X-Forwarded-Host'] =
+      options.headers['X-Forwarded-Host'] + ', ' + this.url.host;
   } else {
     options.headers['X-Forwarded-Host'] = this.url.host;
   }
 
-  if (!options.headers['X-Forwarded-Port']) {
-    options.headers['X-Forwarded-Port'] = ''+this.url.port;
+  if (options.headers['X-Forwarded-Port']) {
+    options.headers['X-Forwarded-Port'] =
+      options.headers['X-Forwarded-Port'] + ', ' + this.router_port;
+  } else {
+    options.headers['X-Forwarded-Port'] = this.router_port;
   }
 
   this.u_req = Http.request(options);
@@ -158,6 +163,16 @@ Environment.prototype.forward = function(host, port) {
       name = Head.headers[key] || key;
       headers[name] = u_res.headers[key];
     });
+
+    if (res_headers) {
+      Object.keys(res_headers).forEach(function(key){
+        var name
+        ;
+
+        name = Head.headers[key] || key;
+        headers[name] = res_headers[key];
+      });
+    }
 
     env.d_res.writeHead(u_res.statusCode, headers);
 
