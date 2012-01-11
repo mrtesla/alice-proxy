@@ -30,11 +30,7 @@ Router = function(type, callback){
     ,   u_req
     ;
 
-    url = Url.format({
-      'protocol' : 'http',
-      'host'     : d_req.headers.host,
-      'pathname' : d_req.url
-    });
+    url = "http://"+d_req.headers.host+(d_req.url || '/');
 
     if (d_req.url == ('/_alice/probe/'+type)) {
       d_res.writeHead(200);
@@ -78,7 +74,7 @@ Environment.prototype.respond = function(status) {
     'Cache-Control': 'max-age=0, private, must-revalidate'
   };
 
-  if (status == 'maintenance') {
+  if (typeof(status) == 'string') {
     status = 503;
   }
 

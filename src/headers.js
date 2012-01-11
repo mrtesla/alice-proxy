@@ -25,7 +25,10 @@ var headers = [
   'X-Forwarded-For',
   'X-Forwarded-Host',
   'X-Forwarded-Port',
-  'X-Forwarded-Proto'
+  'X-Forwarded-Proto',
+  'X-Rack-Cache',
+  'X-Runtime',
+  'X-UA-Compatible'
 ];
 
 exports.headers = {};
