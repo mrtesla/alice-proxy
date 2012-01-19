@@ -174,7 +174,7 @@ Environment.prototype.forward = function(host, port, res_headers) {
 
     if (u_res.statusCode >= 100 && u_res.statusCode < 200) {
       env.d_res.end();
-    } else if (u_res.statusCode >= 304) {
+    } else if (u_res.statusCode == 304) {
       env.d_res.end();
     } else if (env.u_req.method === 'HEAD') {
       env.d_res.end();
