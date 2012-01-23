@@ -165,6 +165,10 @@ Environment.prototype.forward = function(host, port, res_headers) {
         var name
         ;
 
+        if (typeof res_headers[key] === 'function') {
+          res_headers[key] = res_headers[key].call(env, u_res.headers[key]);
+        }
+
         name = Head.headers[key] || key;
         headers[name] = res_headers[key];
       });
