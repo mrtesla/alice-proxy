@@ -67,6 +67,8 @@ Environment.prototype.respond = function(status) {
   ,   headers
   ;
 
+  console.log("RESP: "+status+" "+this.upstream_url);
+
   file = __dirname + "/../errors/"+status+".html";
 
   headers = {
@@ -157,6 +159,8 @@ Environment.prototype.forward = function(host, port, res_headers) {
   this.u_req.on('response', function(u_res){
     var headers
     ;
+
+    console.log("FWRD: "+u_res.statusCode+" "+env.upstream_url);
 
     headers = {};
     Object.keys(u_res.headers).forEach(function(key){
