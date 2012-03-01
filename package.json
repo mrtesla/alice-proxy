@@ -1,5 +1,5 @@
 {   "name" : "alice-proxy",
-    "version" : "0.0.19",
+    "version" : "0.0.20",
     "description" : "Alice - Http proxy",
     "author": "Simon Menke <simon.menke@gmail.com>",
     "contributors": [],

@@ -145,9 +145,9 @@ Environment.prototype.forward = function(host, port, res_headers) {
   this.u_req.setHeader('Host', this.url.host);
 
   if (this.method === 'POST' || this.method === 'PUT' || this.method === 'DELETE') {
-    timeout = 180000; // 1.5 min
+    timeout = 3 * 60 * 1000; // 30 min
   } else {
-    timeout = 15000; // 15 sec
+    timeout = 30 * 1000; // 30 sec
   }
 
   this.u_req.setTimeout(timeout, function(){
